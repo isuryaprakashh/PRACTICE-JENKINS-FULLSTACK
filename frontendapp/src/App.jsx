@@ -46,7 +46,7 @@ export default function UserManager() {
   // Delete user
   const handleDelete = async (uid) => {
     try {
-      const response = await axios.delete(`http://localhost:2030springbootuserapi/users/delete/${uid}`);
+      const response = await axios.delete(`http://localhost:2030/springbootuserapi/users/delete/${uid}`);
       setMessage(response.data);
       fetchUsers(); // refresh list
     } catch (error) {
