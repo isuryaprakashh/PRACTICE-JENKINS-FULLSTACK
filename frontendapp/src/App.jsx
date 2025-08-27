@@ -13,7 +13,7 @@ export default function UserManager() {
   // Fetch all users
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:2000/springbootuserapi/display");
+      const response = await axios.get("http://localhost:2030/springbootuserapi/display");
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -33,7 +33,7 @@ export default function UserManager() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:2000/springbootuserapi/add", formData);
+      const response = await axios.post("http://localhost:2030/springbootuserapi/add", formData);
       setMessage(response.data);
       setFormData({ name: "", age: "", gender: "" });
       fetchUsers(); // refresh list
@@ -46,7 +46,7 @@ export default function UserManager() {
   // Delete user
   const handleDelete = async (uid) => {
     try {
-      const response = await axios.delete(`http://localhost:2000springbootuserapi//delete/${uid}`);
+      const response = await axios.delete(`http://localhost:2030springbootuserapi//delete/${uid}`);
       setMessage(response.data);
       fetchUsers(); // refresh list
     } catch (error) {
