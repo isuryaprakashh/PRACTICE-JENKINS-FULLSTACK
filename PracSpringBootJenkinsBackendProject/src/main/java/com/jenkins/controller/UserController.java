@@ -20,7 +20,7 @@ import com.jenkins.service.UserService;
 
 
 @RestController
-@RequestMapping("/users/")
+@RequestMapping("/users")
 @CrossOrigin("*")
 public class UserController 
 {
