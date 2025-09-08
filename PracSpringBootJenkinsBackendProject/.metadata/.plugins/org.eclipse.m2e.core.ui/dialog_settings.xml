@@ -2,6 +2,7 @@
 <section name="Workbench">
 	<section name="MavenProjectImportWizardPage">
 		<list key="rootDirectory">
+			<item value="C:\KLU-ACADEMICS\KLU-3.1\CICDPRAC\JENKINS-FULLSTACK"/>
 			<item value="C:\KLU-ACADEMICS\KLU-3.1\CICDPRAC\JENKINS-FULLSTACK\PracSpringBootJenkinsBackendProject"/>
 		</list>
 		<list key="projectNameTemplate">
