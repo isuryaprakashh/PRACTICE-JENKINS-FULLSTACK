@@ -56,9 +56,10 @@ public class UserController
 		return service.displayUsers();
 	}
 	
-	@PutMapping("/update")
-	public String updateUser(@RequestBody User u)
+	@PutMapping("/update/{id}")
+	public String updateUser(@PathVariable int id,@RequestBody User u)
 	{
+		u.setId(id);
 		return service.updateUser(u);
 	}
 	

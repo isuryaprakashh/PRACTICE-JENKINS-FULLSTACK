@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import BASE_URL from "../config";
+import "./styles.css";
 
 export default function UserManager() {
   const [users, setUsers] = useState([]);
@@ -8,7 +11,7 @@ export default function UserManager() {
   const [updateData, setUpdateData] = useState({ id: "", name: "", age: "", gender: "" });
   const [searchId, setSearchId] = useState("");
   const [foundUser, setFoundUser] = useState(null);
-  const [message, setMessage] = useState("");
+  const [editingUserId, setEditingUserId] = useState(null);
 
   // Fetch all users
   const fetchUsers = async () => {
@@ -17,6 +20,7 @@ export default function UserManager() {
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
+      toast.error("Error fetching users", { position: "top-right" });
     }
   };
 
@@ -34,12 +38,12 @@ export default function UserManager() {
     e.preventDefault();
     try {
       const response = await axios.post(`${BASE_URL}/add`, formData);
-      setMessage(response.data);
+      toast.success(response.data, { position: "top-right" });
       setFormData({ name: "", age: "", gender: "" });
       fetchUsers();
     } catch (error) {
       console.error("Error adding user:", error);
-      setMessage("Error adding user");
+      toast.error("Error adding user", { position: "top-right" });
     }
   };
 
@@ -47,12 +51,24 @@ export default function UserManager() {
   const handleDelete = async (uid) => {
     try {
       const response = await axios.delete(`${BASE_URL}/delete/${uid}`);
-      setMessage(response.data);
+      toast.success(response.data, { position: "top-right" });
       fetchUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
-      setMessage("Error deleting user");
+      toast.error("Error deleting user", { position: "top-right" });
     }
+  };
+
+  // Start editing user
+  const handleEdit = (user) => {
+    setEditingUserId(user.id);
+    setUpdateData({ id: user.id, name: user.name, age: user.age, gender: user.gender });
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditingUserId(null);
+    setUpdateData({ id: "", name: "", age: "", gender: "" });
   };
 
   // Update user
@@ -60,12 +76,13 @@ export default function UserManager() {
     e.preventDefault();
     try {
       const response = await axios.put(`${BASE_URL}/update/${updateData.id}`, updateData);
-      setMessage(response.data);
+      toast.success(response.data, { position: "top-right" });
+      setEditingUserId(null);
       setUpdateData({ id: "", name: "", age: "", gender: "" });
       fetchUsers();
     } catch (error) {
       console.error("Error updating user:", error);
-      setMessage("Error updating user");
+      toast.error("Error updating user", { position: "top-right" });
     }
   };
 
@@ -74,73 +91,68 @@ export default function UserManager() {
     try {
       const response = await axios.get(`${BASE_URL}/display/${searchId}`);
       setFoundUser(response.data);
-      setMessage("");
+      toast.success("User found", { position: "top-right" });
     } catch (error) {
       console.error("Error fetching user:", error);
       setFoundUser(null);
-      setMessage("User not found");
+      toast.error("User not found", { position: "top-right" });
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">User Manager</h2>
+    <div className="container">
+      <h2 className="title">User Manager</h2>
 
       {/* Add User Form */}
-      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h3 className="text-xl font-semibold mb-4">Add User</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input type="text" id="name" value={formData.name}
+      <form onSubmit={handleSubmit} className="card add-form">
+        <h3 className="subtitle">Add User</h3>
+        <div className="form-grid">
+          <input
+            type="text"
+            id="name"
+            value={formData.name}
             onChange={(e) => handleChange(e, setFormData, formData)}
-            placeholder="Name" required className="border p-2 rounded-lg" />
-          <input type="number" id="age" value={formData.age}
+            placeholder="Name"
+            required
+            className="input"
+          />
+          <input
+            type="number"
+            id="age"
+            value={formData.age}
             onChange={(e) => handleChange(e, setFormData, formData)}
-            placeholder="Age" required className="border p-2 rounded-lg" />
-          <input type="text" id="gender" value={formData.gender}
+            placeholder="Age"
+            required
+            className="input"
+          />
+          <input
+            type="text"
+            id="gender"
+            value={formData.gender}
             onChange={(e) => handleChange(e, setFormData, formData)}
-            placeholder="Gender" required className="border p-2 rounded-lg" />
+            placeholder="Gender"
+            required
+            className="input"
+          />
         </div>
-        <button type="submit" className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-          Add User
-        </button>
-      </form>
-
-      {/* Update User Form */}
-      <form onSubmit={handleUpdate} className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h3 className="text-xl font-semibold mb-4">Update User</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <input type="number" id="id" value={updateData.id}
-            onChange={(e) => handleChange(e, setUpdateData, updateData)}
-            placeholder="User ID" required className="border p-2 rounded-lg" />
-          <input type="text" id="name" value={updateData.name}
-            onChange={(e) => handleChange(e, setUpdateData, updateData)}
-            placeholder="Name" className="border p-2 rounded-lg" />
-          <input type="number" id="age" value={updateData.age}
-            onChange={(e) => handleChange(e, setUpdateData, updateData)}
-            placeholder="Age" className="border p-2 rounded-lg" />
-          <input type="text" id="gender" value={updateData.gender}
-            onChange={(e) => handleChange(e, setUpdateData, updateData)}
-            placeholder="Gender" className="border p-2 rounded-lg" />
-        </div>
-        <button type="submit" className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">
-          Update User
-        </button>
+        <button type="submit" className="button primary">Add User</button>
       </form>
 
       {/* Search User by ID */}
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h3 className="text-xl font-semibold mb-4">Find User by ID</h3>
-        <div className="flex gap-4">
-          <input type="number" value={searchId}
+      <div className="card">
+        <h3 className="subtitle">Find User by ID</h3>
+        <div className="search-bar">
+          <input
+            type="number"
+            value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
-            placeholder="Enter User ID" className="border p-2 rounded-lg flex-1" />
-          <button onClick={handleSearch}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
-            Search
-          </button>
+            placeholder="Enter User ID"
+            className="input search-input"
+          />
+          <button onClick={handleSearch} className="button secondary">Search</button>
         </div>
         {foundUser && (
-          <div className="mt-4 p-3 border rounded bg-gray-50">
+          <div className="user-info">
             <p><strong>ID:</strong> {foundUser.id}</p>
             <p><strong>Name:</strong> {foundUser.name}</p>
             <p><strong>Age:</strong> {foundUser.age}</p>
@@ -149,44 +161,80 @@ export default function UserManager() {
         )}
       </div>
 
-      {/* Message */}
-      {message && <div className="mb-4 text-green-600 font-medium">{message}</div>}
-
       {/* Users List */}
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h3 className="text-xl font-semibold mb-4">All Users</h3>
+      <div className="card">
+        <h3 className="subtitle">All Users</h3>
         {users.length === 0 ? (
-          <p className="text-gray-500">No users found</p>
+          <p className="no-data">No users found</p>
         ) : (
-          <table className="w-full border-collapse">
+          <table className="user-table">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2">ID</th>
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Age</th>
-                <th className="border p-2">Gender</th>
-                <th className="border p-2">Action</th>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr key={u.id} className="text-center">
-                  <td className="border p-2">{u.id}</td>
-                  <td className="border p-2">{u.name}</td>
-                  <td className="border p-2">{u.age}</td>
-                  <td className="border p-2">{u.gender}</td>
-                  <td className="border p-2">
-                    <button onClick={() => handleDelete(u.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg">
-                      Delete
-                    </button>
-                  </td>
+                <tr key={u.id}>
+                  {editingUserId === u.id ? (
+                    <>
+                      <td>{u.id}</td>
+                      <td>
+                        <input
+                          type="text"
+                          id="name"
+                          value={updateData.name}
+                          onChange={(e) => handleChange(e, setUpdateData, updateData)}
+                          className="input table-input"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          id="age"
+                          value={updateData.age}
+                          onChange={(e) => handleChange(e, setUpdateData, updateData)}
+                          className="input table-input"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          id="gender"
+                          value={updateData.gender}
+                          onChange={(e) => handleChange(e, setUpdateData, updateData)}
+                          className="input table-input"
+                        />
+                      </td>
+                      <td>
+                        <button onClick={handleUpdate} className="button primary small">Save</button>
+                        <button onClick={handleCancelEdit} className="button cancel small">Cancel</button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td>{u.id}</td>
+                      <td>{u.name}</td>
+                      <td>{u.age}</td>
+                      <td>{u.gender}</td>
+                      <td>
+                        <button onClick={() => handleEdit(u)} className="button secondary small">Update</button>
+                        <button onClick={() => handleDelete(u.id)} className="button danger small">Delete</button>
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+
+      <ToastContainer />
     </div>
   );
 }
