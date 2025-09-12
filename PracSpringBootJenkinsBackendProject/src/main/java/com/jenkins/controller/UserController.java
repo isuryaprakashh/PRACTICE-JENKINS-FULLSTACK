@@ -2,7 +2,11 @@ package com.jenkins.controller;
 
 import java.util.List;
 
+import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,10 +50,30 @@ public class UserController
 		return service.deleteUser(uid);
 	}
 	
-	@GetMapping("/display")
+	@GetMapping("/viewall")
 	public List<User> displayUsers()
 	{
 		return service.displayUsers();
+	}
+	
+	@PutMapping("/update")
+	public String updateUser(@RequestBody User u)
+	{
+		return service.updateUser(u);
+	}
+	
+	@GetMapping("display/{uid}")
+	public ResponseEntity<?> displayUserById(@PathVariable int uid)
+	{
+		User u = service.displayUserbyId(uid);
+		if(u!=null)
+		{
+			return ResponseEntity.ok(u);
+		}
+		else
+		{
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID Not Found");
+		}
 	}
 	
 }

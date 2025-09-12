@@ -21,11 +21,25 @@ public class UserServiceImpl implements UserService
 		return "User Added Successfully";
 	}
 
-//	@Override
-//	public String updateUser(User user) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+	@Override
+	public String updateUser(User user) {
+		Optional<User> obj = repository.findById(user.getId());
+		String msg = null;
+		if(obj.isPresent())
+		{
+			User u1 = obj.get();
+			u1.setName(user.getName());
+			u1.setAge(user.getAge());
+			u1.setGender(user.getGender());
+			repository.save(u1);
+			msg = "User Deatils Updated Successfully";
+		}
+		else
+		{
+			msg = "User ID Not Found to update";
+		}
+		return msg;
+	}
 
 	@Override
 	public String deleteUser(int uid) {
